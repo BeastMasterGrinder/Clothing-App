@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.clothingapp.Controller.OrderController">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Button fx:id="backButton" text="←" onAction="#goBack"/>
+        </HBox>
+    </top>
+    <center>
+        <VBox alignment="CENTER" spacing="10">
+            <!-- Add components to display order history -->
+            <Label text="Order History"/>
+            <!-- Add more components as needed -->
+            <VBox alignment="CENTER" spacing="10">
+                <ListView fx:id="orderListView" onMouseClicked="#showOrderDetail"/>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

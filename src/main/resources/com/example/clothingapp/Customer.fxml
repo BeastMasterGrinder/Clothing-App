@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.collections.FXCollections?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.clothingapp.Controller.CustomerController">
+    <top>
+        <HBox alignment="CENTER" spacing="10">
+            <Button fx:id="backButton" text="←" onAction="#goBack"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Log Out" onAction="#logOut"/>
+        </HBox>
+        <HBox alignment="CENTER" spacing="10">
+            <Button fx:id="ViewShopButton" text="View Shopping Cart" onAction="#viewShoppingCart"/>
+            <TextField fx:id="searchTextField" promptText="Search by Product Name" onKeyReleased="#searchProducts"/>
+            <ChoiceBox fx:id="filterChoiceBox" onAction="#filterProducts">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Default"/>
+                        <String fx:value="Price: Low to High"/>
+                        <String fx:value="Price: High to Low"/>
+                    </FXCollections>
+                </items>
+            </ChoiceBox>
+        </HBox>
+    </top>
+    <center>
+        <VBox alignment="CENTER" spacing="10">
+            <ListView fx:id="productListView" onMouseClicked="#showProductDetails"/>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" spacing="10">
+            <Button text="Show Orders" onAction="#showOrders"/>
+        </HBox>
+    </bottom>
+</BorderPane>
