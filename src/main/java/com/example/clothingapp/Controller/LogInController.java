@@ -30,6 +30,7 @@ public class LogInController {
 
     @FXML
     void initialize() {
+        roleChoiceBox.getItems().removeAll();
         roleChoiceBox.getItems().addAll("Customer", "Administrator", "Shop Owner");
         roleChoiceBox.setValue("Customer");
     }
@@ -82,7 +83,7 @@ public class LogInController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/clothingapp/SignIn.fxml"));
 
             Stage stage = (Stage) logInButton.getScene().getWindow();
-            Scene scene = new Scene(fxmlLoader.load());
+            Scene scene = new Scene(fxmlLoader.load(), 600, 700);
 
             stage.setScene(scene);
 
@@ -104,7 +105,7 @@ public class LogInController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/clothingapp/Admin.fxml"));
 
             Stage stage = (Stage) logInButton.getScene().getWindow();
-            Scene scene = new Scene(fxmlLoader.load());
+            Scene scene = new Scene(fxmlLoader.load(), 600, 700);
 
             AdminController adminController = fxmlLoader.getController();
             adminController.initialize(user);
@@ -120,7 +121,7 @@ public class LogInController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/clothingapp/Customer.fxml"));
 
             Stage stage = (Stage) logInButton.getScene().getWindow();
-            Scene scene = new Scene(fxmlLoader.load());
+            Scene scene = new Scene(fxmlLoader.load(), 600, 700);
 
             CustomerController customerController = fxmlLoader.getController();
             customerController.initialize(user);
@@ -136,7 +137,7 @@ public class LogInController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/clothingapp/StoreOwner.fxml"));
 
             Stage stage = (Stage) logInButton.getScene().getWindow();
-            Scene scene = new Scene(fxmlLoader.load());
+            Scene scene = new Scene(fxmlLoader.load(), 600, 700);
 
             StoreOwnerController storeOwnerController = fxmlLoader.getController();
             storeOwnerController.initialize(user);

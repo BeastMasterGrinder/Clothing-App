@@ -30,6 +30,8 @@ public class SignInController {
 
     @FXML
     void initialize() {
+        signinroleChoiceBox.getItems().removeAll();
+
         signinroleChoiceBox.getItems().addAll("Customer", "Administrator", "Shop Owner");
         signinroleChoiceBox.setValue("Customer");
     }
@@ -69,7 +71,7 @@ public class SignInController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/clothingapp/LogIn.fxml"));
 
             Stage stage = (Stage) signInButton.getScene().getWindow();
-            Scene scene = new Scene(fxmlLoader.load());
+            Scene scene = new Scene(fxmlLoader.load(), 600, 700);
 
             stage.setScene(scene);
 

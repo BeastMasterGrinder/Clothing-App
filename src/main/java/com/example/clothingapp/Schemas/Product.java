@@ -178,11 +178,25 @@ public class Product {
                 }
             }
 
+            // Check if there are any reviews that reference this product
+            query = "SELECT COUNT(*) FROM reviews WHERE product_id = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setInt(1, productID);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next() && resultSet.getInt(1) > 0) {
+                        // There are reviews that reference this product, so don't delete it
+                        System.out.println("Cannot delete product because it is referenced by one or more reviews.");
+                        return;
+                    }
+                }
+            }
+
             // Delete the product
             query = "DELETE FROM products WHERE id = ?";
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setInt(1, productID);
                 preparedStatement.executeUpdate();
+                System.out.println("Product deleted from database");
             }
         } catch (SQLException e) {
             e.printStackTrace();

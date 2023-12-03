@@ -25,7 +25,7 @@ public class ClothingStoreApp extends Application {
             loadAllData();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("LogIn.fxml"));
             Parent root = loader.load();
-            Scene scene = new Scene(root, 800, 900);
+            Scene scene = new Scene(root, 600, 700);
 
             // Set the SignInController on the FXMLLoader
             LogInController LogIn = loader.getController();

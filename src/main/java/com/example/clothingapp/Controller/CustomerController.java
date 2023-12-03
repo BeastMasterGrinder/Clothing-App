@@ -4,10 +4,7 @@ package com.example.clothingapp.Controller;
 
 import com.example.clothingapp.Model.Customer;
 import com.example.clothingapp.Model.User;
-import com.example.clothingapp.Schemas.CartItem;
-import com.example.clothingapp.Schemas.Inventory;
-import com.example.clothingapp.Schemas.Product;
-import com.example.clothingapp.Schemas.Review;
+import com.example.clothingapp.Schemas.*;
 import com.example.clothingapp.System.SystemSettings;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
@@ -97,7 +94,10 @@ public class CustomerController{
                 Button removeButton = new Button("Remove");
                 removeButton.setOnAction(event -> {
                     // Remove the CartItem from the cart
-                    customer.getCart().deleteProduct(cartItem.getProduct());
+
+                    ShoppingCart temp = customer.getCart();
+                    temp.deleteProduct(cartItem.getProduct(), customer);
+                    customer.setCart(temp);
 
                     // Remove the product label, TextField, and button from the dialog
                     grid.getChildren().removeAll(productLabel, quantityField, removeButton);
@@ -118,6 +118,7 @@ public class CustomerController{
                 if (buttonType == orderButtonType) {
                     // Handle order action
                     OrderFromCart(customer);
+
                 }
                 return null;
             });
@@ -200,8 +201,9 @@ public class CustomerController{
                     // Handle order action
                     int quantity = Integer.parseInt(quantityField.getText());
                     if (buttonType == orderButtonType) {
-                        customer.addtoOrder(selectedProduct, quantity);
-                        OrderFromView(customer, selectedProduct, quantity);
+
+                        if(OrderFromView(customer, selectedProduct, quantity))
+                            customer.addtoOrder(selectedProduct, quantity);
                     } else if (buttonType == addToCartButtonType) {
                         // Handle add to cart action
                         customer.addToCart(selectedProduct, quantity);
@@ -262,7 +264,7 @@ public class CustomerController{
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/clothingapp/Order.fxml"));
 
             Stage stage = (Stage) ViewShopButton.getScene().getWindow();
-            Scene scene = new Scene(fxmlLoader.load());
+            Scene scene = new Scene(fxmlLoader.load(), 600, 700);
 
             stage.setScene(scene);
 
@@ -279,7 +281,7 @@ public class CustomerController{
         }
     }
 
-    private void OrderFromCart(Customer customer){
+    private boolean OrderFromCart(Customer customer){
         // Get the CartItems from the ShoppingCart
         List<CartItem> cartItems = customer.getCart().getItems();
 
@@ -287,7 +289,22 @@ public class CustomerController{
             // Calculate the total amount
             double totalAmount = 0.0;
             for (CartItem cartItem : cartItems) {
+                Product product = cartItem.getProduct();
+                int quantity = cartItem.getQuantity();
+                if (quantity > product.getInStock()) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Warning");
+                    alert.setHeaderText(null);
+                    alert.setContentText("The quantity ordered for " + product.getName() + " is greater than the stock available.");
+                    alert.showAndWait();
+                    return false;
+                }
                 totalAmount += cartItem.getProduct().getPrice() * cartItem.getQuantity();
+                product.setInStock(product.getInStock() - quantity);
+                if(product.getInStock() != 0)
+                    product.updateProductInDatabase(product);
+                else if(product.getInStock() == 0)
+                    product.deleteProductFromDatabase();
             }
             totalAmount += totalAmount * (SystemSettings.getTaxRate()/100);
 
@@ -326,21 +343,33 @@ public class CustomerController{
             alert.setContentText("Your shopping cart is empty.");
 
             alert.showAndWait();
+            return false;
         }
+        return true;
     }
-    private void OrderFromView(Customer customer, Product product, int quantity){
+    private boolean OrderFromView(Customer customer, Product product, int quantity){
         CartItem OrderedcartItem = new CartItem(product, quantity);
         // Get the CartItems from the ShoppingCart
         customer.getCart().clearCart();
         ArrayList<CartItem> cartItems = customer.getCart().getItems();
         cartItems.add(OrderedcartItem);
-        customer.setCart(cartItems);
+        customer.setCartItems(cartItems);
 
         if (!cartItems.isEmpty()) {
             // Calculate the total amount
             double totalAmount = 0.0;
             for (CartItem item : cartItems) {
+                if (quantity > product.getInStock()) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Warning");
+                    alert.setHeaderText(null);
+                    alert.setContentText("The quantity ordered for " + product.getName() + " is greater than the stock available.");
+                    alert.showAndWait();
+                    return false;
+                }
                 totalAmount += item.getProduct().getPrice() * item.getQuantity();
+                product.setInStock(product.getInStock() - quantity);
+                Product.updateProductInDatabase(product);
             }
             totalAmount += totalAmount * (SystemSettings.getTaxRate()/100);
 
@@ -379,7 +408,9 @@ public class CustomerController{
             alert.setContentText("Your shopping cart is empty.");
 
             alert.showAndWait();
+            return false;
         }
+        return true;
     }
 
     @FXML

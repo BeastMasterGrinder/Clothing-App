@@ -60,8 +60,11 @@ public class OrderController{
         Order selectedOrder = orderListView.getSelectionModel().getSelectedItem();
 
         if (selectedOrder != null) {
+            // Fetch the CartItems from the Order
+            List<CartItem> orderedItems = selectedOrder.getOrderedItems();
+
             // Create a Dialog
-            Dialog<Order> dialog = new Dialog<>();
+            Dialog<CartItem> dialog = new Dialog<>();
             dialog.setTitle("Order Details");
             dialog.setHeaderText("Details of Order " + selectedOrder.getOrderID());
 
@@ -71,66 +74,18 @@ public class OrderController{
             grid.setVgap(10); // Vertical spacing
             grid.setPadding(new Insets(20, 20, 20, 20)); // Padding
 
-            // Loop through the products in the order
-            for (int i = 0; i < selectedOrder.getOrderedItems().size(); i++) {
-                CartItem cartItem = selectedOrder.getOrderedItems().get(i);
-                Product product = cartItem.getProduct();
+            // Loop through the CartItems
+            for (int i = 0; i < orderedItems.size(); i++) {
+                CartItem cartItem = orderedItems.get(i);
 
-                // Create a label for the product
-                Label productLabel = new Label(product.getName() + " (Quantity: " + cartItem.getQuantity() + ")");
-                productLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+                // Create a label for the product and quantity
+                Label productLabel = new Label(cartItem.getProduct().getName() + " (Quantity: " + cartItem.getQuantity() + ")");
 
                 // Create a "Review" button for the product
                 Button reviewButton = new Button("Review");
                 reviewButton.setOnAction(event -> {
-                    // Create a Dialog for the review
-                    Dialog<Review> reviewDialog = new Dialog<>();
-                    reviewDialog.setTitle("Review Product");
-                    reviewDialog.setHeaderText("Review of " + product.getName());
-
-                    // Create a TextField for the feedback and a ComboBox for the rating
-                    TextField feedbackField = new TextField();
-                    feedbackField.setPromptText("Enter your feedback");
-                    ComboBox<Integer> ratingComboBox = new ComboBox<>();
-                    ratingComboBox.setItems(FXCollections.observableArrayList(1, 2, 3, 4, 5));
-                    ratingComboBox.setPromptText("Select a rating");
-
-                    // Create a grid pane for the feedback and rating
-                    GridPane reviewGrid = new GridPane();
-                    reviewGrid.setHgap(10); // Horizontal spacing
-                    reviewGrid.setVgap(10); // Vertical spacing
-                    reviewGrid.setPadding(new Insets(20, 20, 20, 20)); // Padding
-                    reviewGrid.add(new Label("Feedback:"), 1, 1);
-                    reviewGrid.add(feedbackField, 2, 1);
-                    reviewGrid.add(new Label("Rating:"), 1, 2);
-                    reviewGrid.add(ratingComboBox, 2, 2);
-
-                    // Set the content of the review dialog pane
-                    reviewDialog.getDialogPane().setContent(reviewGrid);
-
-                    // Add a "Submit" button to the review dialog
-                    ButtonType submitButtonType = new ButtonType("Submit", ButtonBar.ButtonData.OK_DONE);
-                    reviewDialog.getDialogPane().getButtonTypes().addAll(submitButtonType, ButtonType.CANCEL);
-
-                    // Handle the result when the "Submit" button is clicked
-                    reviewDialog.setResultConverter(buttonType -> {
-                        if (buttonType == submitButtonType) {
-                            // Create a new Review
-                            Review review = new Review(
-                                    Review.generateReviewID(),
-                                    ratingComboBox.getValue(),
-                                    product.getProductID(),
-                                    feedbackField.getText(),
-                                    java.sql.Date.valueOf(LocalDate.now())
-                            );
-                            // Save the review to the database
-                            review.SaveReviewToDatabase();
-                        }
-                        return null;
-                    });
-
-                    // Show the review dialog
-                    reviewDialog.showAndWait();
+                    // Open a new dialog for reviewing the product
+                    ReviewProduct(cartItem.getProduct());
                 });
 
                 // Add the product label and button to the grid
@@ -138,18 +93,57 @@ public class OrderController{
                 grid.add(reviewButton, 2, i + 1);
             }
 
+            // Add a "Cancel" button to the dialog
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+
             // Set the content of the dialog pane
             dialog.getDialogPane().setContent(grid);
 
-            // Add some styling to the dialog pane
-            dialog.getDialogPane().setStyle("-fx-background-color: #f0f0f0;");
-
-            // Add a DialogEvent to handle the close request
-            dialog.setOnCloseRequest(event -> dialog.close());
-
             // Show the dialog
-            Platform.runLater(dialog::showAndWait);
+            dialog.showAndWait();
         }
+    }
+    private void ReviewProduct(Product product){
+        // Create a Dialog
+        Dialog<Review> dialog = new Dialog<>();
+        dialog.setTitle("Review Product");
+        dialog.setHeaderText("Review " + product.getName());
+
+        // Create labels and fields for the review
+        Label ratingLabel = new Label("Rating (1-5):");
+        TextField ratingField = new TextField();
+        Label feedbackLabel = new Label("Feedback:");
+        TextField feedbackField = new TextField();
+
+        // Create a "Submit" button
+        ButtonType submitButtonType = new ButtonType("Submit", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(submitButtonType, ButtonType.CANCEL);
+
+        // Create a grid pane and add the labels, fields, and button
+        GridPane grid = new GridPane();
+        grid.add(ratingLabel, 1, 1);
+        grid.add(ratingField, 2, 1);
+        grid.add(feedbackLabel, 1, 2);
+        grid.add(feedbackField, 2, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Handle the result when the "Submit" button is clicked
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == submitButtonType) {
+                // Handle submit action
+                int reviewID = Review.generateReviewID();
+                int rating = Integer.parseInt(ratingField.getText());
+                String feedback = feedbackField.getText();
+                Date date = new Date(System.currentTimeMillis());
+                Review review = new Review(reviewID, rating, product.getProductID(), feedback, date);
+                review.SaveReviewToDatabase();
+            }
+            return null;
+        });
+
+        // Show the dialog
+        dialog.showAndWait();
     }
 
     @FXML

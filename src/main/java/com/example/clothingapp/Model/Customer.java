@@ -59,18 +59,11 @@ public class Customer extends User {
         ArrayList<CartItem> items = cart.getItems();
         Order order = new Order(items);
         orders.add(order);
-        order.pay(total);
+        order.pay(total, this.customerID);
         cart.clearCart();
     }
-
-    public void trackOrder(int orderID) {
-        // Implementation for tracking an order
-        Order order = findOrder(orderID);
-        if (order != null) {
-            order.trackOrder();
-        } else {
-            // Handle order not found
-        }
+    public void updateCartItems(ArrayList<CartItem> items) {
+        this.cart.setItems(items);
     }
 
     private Order findOrder(int orderID) {
@@ -128,7 +121,10 @@ public class Customer extends User {
         }
     }
 
-    public void setCart(ArrayList<CartItem> cart){
-        this.cart.setItems(cart);
+    public void setCart(ShoppingCart cart){
+        this.cart = cart;
+    }
+    public void setCartItems(ArrayList<CartItem> items){
+        this.cart.setItems(items);
     }
 }

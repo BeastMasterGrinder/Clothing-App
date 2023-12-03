@@ -19,5 +19,5 @@
     <PasswordField fx:id="passwordField" promptText="Password" />
     <ChoiceBox fx:id="signinroleChoiceBox" prefWidth="150.0" />
     <Button fx:id="signInButton" onAction="#signInButtonClicked" text="Sign In" />
-    <Hyperlink text="Open Another Page" onAction="#openAnotherPage"/>
+    <Hyperlink text="Already have account? Log In!" onAction="#openAnotherPage"/>
 </VBox>

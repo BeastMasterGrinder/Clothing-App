@@ -90,7 +90,7 @@ public class AdminController {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/clothingapp/LogIn.fxml"));
 
             Stage stage = (Stage) backButton.getScene().getWindow();
-            Scene scene = new Scene(fxmlLoader.load());
+            Scene scene = new Scene(fxmlLoader.load(), 600, 700);
 
             stage.setScene(scene);
 
